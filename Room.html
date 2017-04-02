@@ -51,7 +51,7 @@
 		{
 
 
-			var dataURL = "http://b116.ml/roomhunt/api/person-interested-in-list?flat_id=" + QueryString().id + "&person_id=5";
+			var dataURL = "http://b116.ml/roomhunt/api/person-interested-in-list?flat_id=" + QueryString().id + "&person_id=2";
 			downloadURL(dataURL, function(response)
 			{
 				response = JSON.parse(response);
@@ -119,7 +119,7 @@
 				console.log("Interested Clicked");
 				var formData = new FormData();
 				formData.append("flat_id", parseInt(QueryString().id));
-				formData.append("person_id", 5);
+				formData.append("person_id", 2);
 				uploadData("http://b116.ml/roomhunt/api/add-interest", formData, null);
 
 				interested = true;
@@ -134,7 +134,7 @@
 				console.log("Not Interested Clicked");
 				var formData = new FormData();
 				formData.append("flat_id", parseInt(QueryString().id));
-				formData.append("person_id", 5);
+				formData.append("person_id", 2);
 				formData.append("delete", true);
 				uploadData("http://b116.ml/roomhunt/api/add-interest", formData, null);
 
