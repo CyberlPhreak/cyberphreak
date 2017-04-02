@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html>
+<title>RoomHunt</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<body>
+
+  <!-- Header -->
+  <header class="w3-display-container w3-content w3-wide" style="max-width:1500px;" id="home">
+    <a href="http://localhost:3000/Home.html" class="w3-bar-item w3-button roomHuntStyle"><img  src="Image/roomHunt.png" width="200" height="30"> </a>
+    <div class="w3-display-middle w3-margin-top w3-center">
+      <h1 class="w3-xxlarge w3-text-white"><span class="w3-padding w3-black w3-opacity-min"><b>Enter</b></span> <span class="w3-hide-small w3-text-light-grey">Details</span></h1>
+    </div>
+  </header>
+	<script type="text/javascript">
+		var autocomplete, latitude, longitude;
+
+		window.onload = function()
+		{
+			document.querySelector("form").addEventListener("submit", event =>
+			{
+				event.preventDefault();
+				var flat = new FormData();
+				flat.append('bedroomNo', document.getElementById("bedrooms").value);
+				flat.append('price',  document.getElementById("price").value);
+				flat.append('latitude', latitude);
+				flat.append('longitude', longitude);
+
+				uploadData('http://b116.ml/roomhunt/api/add-flat', flat, goToMap());
+			});
+		}
+
+		function goToMap()
+		{
+			window.location.href = "./map.html";
+		}
+
+		function setLatLng()
+		{
+			latitude = autocomplete.getPlace().geometry.location.lat();
+			longitude = autocomplete.getPlace().geometry.location.lng();
+		}
+
+		function initAutocomplete()
+		{
+			autocomplete = new google.maps.places.Autocomplete(
+				document.getElementById('autocomplete'),
+				{types: ['geocode']});
+
+			autocomplete.addListener('place_changed', setLatLng);
+		}
+
+		function uploadData(url, data, callback)
+		{
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", url, true);
+
+			xhr.onreadystatechange = function()
+			{
+				if(xhr.readyState === 4 && xhr.status === 200)
+				{
+					console.log(xhr.responseText);
+				}
+			}
+
+			xhr.send(data);
+
+			xhr.onloadend = callback;
+
+		}
+
+
+	</script>
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAFJTV20FPAnaRpaPZkPYY1m4qyEEuUdho&libraries=places&callback=initAutocomplete" async defer></script>
+</head>
+<body>
+	<h1>Add New Location</h1>
+	<form>
+		<label>Address:
+		<input id="autocomplete" placeholder="Enter your address" type="text"></input>
+		</label>
+		<br>
+		<label>Number of Bedrooms:
+		<input id="bedrooms" type="number"></input>
+		</label>
+		<br>
+		<label>Price:
+		<input id="price" type="number"></input>
+		</label>
+		<br>
+		<button type ="submit">Submit</button>
+	</form>
+</body>
+</html>

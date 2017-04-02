@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<title>RoomHunt</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="/Styling/filter.css">
+<header class="w3-display-container w3-content w3-wide" style="max-width:1500px;" id="home">
+  <a href="http://localhost:3000/Home.html" class="w3-bar-item w3-button roomHuntStyle"><img  src="Image/roomHunt.png" width="200" height="30"> </a>
+  <div class="w3-display-middle  w3-center" >
+    <h1 class="w3-xxlarge w3-text-white"><span class="w3-padding w3-black w3-opacity-min" id="editDetails"><a href="#popup1"><b>Edit</b></a></span> <span class="w3-hide-small w3-text-light-grey">Preference</span></h1>
+
+    </nav>
+  </div>
+</header>
+<body>
+	<head>
+		<style>
+			#map {
+				height: 400px;
+				width: 100%;
+				background-color: grey;
+			}
+
+		</style>
+	</head>
+	<body>
+
+<div id="map" class="w3-grayscale" style="width:100%;height:540px;"></div>
+<div id="popup1" class="overlay">
+  <div class="popup">
+    <h2>Filter your prefrences</h2>
+    <a class="close" href="#">×</a>
+    <div class="content">
+      <form class = "w3-center  w3-display-middle" id="filterForm">
+        <input type="text" placeholder="Max Price"  id="MAX FIELD IDP" >
+        <input type="text" placeholder="Min Price"  id="MIN FIELD IDP" >
+        <input type="text" placeholder="Max Bedroom"  id="MAX FIELD IDB" >
+        <input type="text" placeholder="Min Bedroom"  id="MIN FIELD IDB" >
+        <button class="w3-button w3-black w3-section" type=submit >
+          Filter.
+        </button>
+        <input type="checkbox" checked="checked"> Remember me
+        <!-- <div>Forgot <a href="#">password?</a></div> -->
+      </form>
+    </div>
+  </div>
+</div>
+	    <script>
+
+	    	var dataURL = "http://b116.ml/roomhunt/api/flat-list";
+
+	    	document.getElementById("filterForm").addEventListener("submit", event  =>
+	    	{
+	    		event.preventDefault();
+	    		constructDataURL();
+	    		initMap();
+          window.location.href = "#";
+	    	})
+
+		    function initMap() {
+		      	var infoWindow = new google.maps.InfoWindow;
+
+		      	var map = new google.maps.Map(document.getElementById("map"),
+		      	{
+		      		center: new google.maps.LatLng(51.5073509, -0.12775829999998223),
+		      		zoom:12
+		      	})
+
+
+		      	downloadURL(dataURL, function(response)
+		      	{
+
+		      		response = JSON.parse(response);
+		      		markers = response.results;
+		      		Array.prototype.forEach.call(markers, function(markerElem) {
+		      			var id = markerElem.id;
+		      			var point = new google.maps.LatLng(parseFloat(markerElem.latitude),parseFloat(markerElem.longitude));
+		      			var bedroomNo = markerElem.bedroomNo;
+		      			var price = markerElem.price;
+
+		      			var infoWindowContent = document.createElement('div');
+		      			var strong = document.createElement('strong');
+		        		strong.textContent = "Price: " + price + " Bedrooms: " + bedroomNo;
+		        		infoWindowContent.appendChild(strong);
+		        		infoWindowContent.appendChild(document.createElement("br"));
+
+		        		var link = document.createElement('a');
+		        		link.href = "./Room.html?id=" + id;
+		        		link.textContent = "See Details";
+		        		infoWindowContent.appendChild(link);
+
+		        		var marker = new google.maps.Marker(
+		        		{
+		        			map: map,
+		        			position: point
+		        		})
+
+		        		marker.addListener('click', function()
+			        	{
+			        		infoWindow.setContent(infoWindowContent);
+			        		infoWindow.open(map, marker);
+			        	})
+
+		      		});
+		      	})
+		    }
+
+		    function downloadURL(url, callback)
+			{
+				var callback = (typeof callback == 'function' ? callback: false);
+
+				var xhr = new XMLHttpRequest();
+
+
+				xhr.onreadystatechange = function()
+				{
+					if(xhr.readyState =XMLHttpRequest.DONE)
+					{
+						callback(xhr.responseText);
+					}
+				}
+				xhr.open("GET", url, true);
+				xhr.send();
+			}
+
+			function constructDataURL()
+			{
+				dataURL = "http://b116.ml/roomhunt/api/flat-list?"
+				var minPriceField = document.getElementById("MIN FIELD IDP");
+				var maxPriceField = document.getElementById("MAX FIELD IDP");
+				var minBedField = document.getElementById("MIN FIELD IDB");
+				var maxBedField = document.getElementById("MAX FIELD IDB");
+
+				if(minPriceField.value != null)
+				{
+					dataURL +=  "min_price=" + minPriceField.value + "&";
+				}
+				if(maxPriceField.value != null)
+				{
+					dataURL +=  "max_price=" + maxPriceField.value + "&";
+				}
+				if(minBedField.value != null)
+				{
+					dataURL +=  "min_bedroom_no=" + minBedField.value + "&";
+				}
+				if(maxBedField.value != null)
+				{
+					dataURL +=  "max_bedroom_no=" + maxPriceField.value;
+				}
+				console.log(dataURL);
+			}
+
+	    </script>
+	    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAFJTV20FPAnaRpaPZkPYY1m4qyEEuUdho&callback=initMap">
+	    </script>
+
+	</body>
+</html>
+
+<!-- End page content -->
+</div>
+
+<!-- Footer -->
+<footer class=" w3-black w3-padding-16">
+  <a href="http://localhost:3000/SignIn.html"><button class="w3-button w3-black w3-right" Add Property></button></a>
+  <a href="http://localhost:3000/location.html" class="w3-button w3-black w3-right">Add Property</a>
+  <p class="w3-center">Powered by team CyberPhreak</p>
+
+</footer>

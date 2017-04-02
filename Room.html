@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<title>RoomHunt</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<body>
+
+  <!-- Header -->
+  <header class="w3-display-container w3-content w3-wide" style="max-width:1500px;" id="home">
+    <a href="http://localhost:3000/Home.html" class="w3-bar-item w3-button roomHuntStyle"><img  src="Image/roomHunt.png" width="200" height="30"> </a>
+    <div class="w3-display-middle w3-margin-top w3-center">
+      <h1 class="w3-xxlarge w3-text-white"><span class="w3-padding w3-black w3-opacity-min"><b>Property</b></span> <span class="w3-hide-small w3-text-light-grey">Details</span></h1>
+    </div>
+  </header>
+
+
+	<div id="propertyInfo"></div>
+	<div id="personList"></div>
+	<div id="interestedButtonContainer"> </div>
+
+	<script>
+		var interested;
+		var interestedButton, notInterestedButton;
+		var interestedButtonContainer;
+
+		var QueryString = function () {
+			  // This function is anonymous, is executed immediately and
+			  // the return value is assigned to QueryString!
+			  var query_string = {};
+			  var query = window.location.search.substring(1);
+			  var vars = query.split("&");
+			  for (var i=0;i<vars.length;i++) {
+			  	var pair = vars[i].split("=");
+			        // If first entry with this name
+			        if (typeof query_string[pair[0]] === "undefined") {
+			        	query_string[pair[0]] = decodeURIComponent(pair[1]);
+			        // If second entry with this name
+			    } else if (typeof query_string[pair[0]] === "string") {
+			    	var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
+			    	query_string[pair[0]] = arr;
+			        // If third or later entry with this name
+			    } else {
+			    	query_string[pair[0]].push(decodeURIComponent(pair[1]));
+			    }
+			}
+			return query_string;
+		};
+
+		var getData = function ()
+		{
+
+
+			var dataURL = "http://b116.ml/roomhunt/api/person-interested-in-list?flat_id=" + QueryString().id + "&person_id=5";
+			downloadURL(dataURL, function(response)
+			{
+				response = JSON.parse(response);
+				response = response[0];
+				var propertyInfo = document.getElementById("propertyInfo");
+				var price = document.createElement("p");
+				price.textContent = "Price: " +  response.price.toString();
+				propertyInfo.appendChild(document.createElement("br"));
+				var bedrooms = document.createElement("p");
+				bedrooms.textContent = "Bedrooms: " +  response.bedroomNo;
+				propertyInfo.appendChild(price);
+				propertyInfo.appendChild(bedrooms);
+
+				interested = response.interested;
+
+				interestedButtonContainer = document.getElementById("interestedButtonContainer");
+
+				createInterestedButtons();
+
+				var personList = document.getElementById("personList");
+				var peopleArray = response.personList;
+
+				for (var i = 0; i < peopleArray.length; i++) {
+					var person = peopleArray[i]
+					var personListElement = document.createElement("div");
+
+					var personName = document.createElement("a");
+					personName.textContent = "Name: " + person.name;
+					personName.href = person.url;
+
+					var personImage = document.createElement("img");
+					personImage.src = person.picture;
+
+					personListElement.appendChild(personImage);
+					personListElement.appendChild(personName);
+					personList.appendChild(personListElement);
+					personList.appendChild(document.createElement("br"));
+				}
+			})
+		}
+
+		function downloadURL(url, callback)
+		{
+			var xhr = new XMLHttpRequest();
+			var i = 0;
+
+			xhr.onreadystatechange = function()
+			{
+				if(xhr.readyState == XMLHttpRequest.DONE)
+				{
+					callback(xhr.responseText);
+				}
+			}
+			xhr.open("GET", url, true);
+			xhr.send();
+		}
+
+		function createInterestedButtons()
+		{
+			interestedButton = document.createElement("button");
+			interestedButton.id = "interestedButton";
+			interestedButton.textContent = "I'm Interested";
+			interestedButton.addEventListener("click", event =>
+			{
+				console.log("Interested Clicked");
+				var formData = new FormData();
+				formData.append("flat_id", parseInt(QueryString().id));
+				formData.append("person_id", 5);
+				uploadData("http://b116.ml/roomhunt/api/add-interest", formData, null);
+
+				interested = true;
+				setInterestedButton();
+			});
+
+			notInterestedButton = document.createElement("button");
+			notInterestedButton.id = "notInterestedButton";
+			notInterestedButton.textContent = "I'm Not Interested";
+			notInterestedButton.addEventListener("click", event =>
+			{
+				console.log("Not Interested Clicked");
+				var formData = new FormData();
+				formData.append("flat_id", parseInt(QueryString().id));
+				formData.append("person_id", 5);
+				formData.append("delete", true);
+				uploadData("http://b116.ml/roomhunt/api/add-interest", formData, null);
+
+				interested = false;
+				setInterestedButton();
+			});
+
+			console.log(interestedButton);
+			console.log(notInterestedButton);
+
+			if(interested)
+			{
+				interestedButtonContainer.appendChild(notInterestedButton);
+			}else
+			{
+				interestedButtonContainer.appendChild(interestedButton);
+			}
+		}
+
+		function setInterestedButton()
+		{
+			if(interested)
+			{
+				console.log("Interested Clicked");
+				var AinterestedButton = document.getElementById("interestedButton");
+				interestedButtonContainer.replaceChild(notInterestedButton, AinterestedButton);
+
+			}else
+			{
+				console.log("Not Interested Clicked");
+				var AnotInterestedButton = document.getElementById("notInterestedButton");
+				interestedButtonContainer.replaceChild(interestedButton, AnotInterestedButton);
+			}
+		}
+
+		function uploadData(url, data, callback)
+		{
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", url, true);
+
+			xhr.onreadystatechange = function()
+			{
+				if(xhr.readyState === 4 && xhr.status === 200)
+				{
+					console.log(xhr.responseText);
+				}
+			}
+
+			xhr.send(data);
+
+			xhr.onloadend = callback;
+
+		}
+
+		getData();
+
+
+	</script>
+</body>
+</html>
